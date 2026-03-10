@@ -6,16 +6,14 @@ import dev.arpit.splitwise.dtos.*;
 import dev.arpit.splitwise.exceptions.BaseException;
 import dev.arpit.splitwise.exceptions.InvalidCreateGroupRequestDtoException;
 import dev.arpit.splitwise.exceptions.InvalidDeleteGroupRequestDtoException;
+import dev.arpit.splitwise.exceptions.InvalidGroupIdException;
 import dev.arpit.splitwise.mappers.GroupDTOs;
 import dev.arpit.splitwise.models.Group;
 import dev.arpit.splitwise.services.IGroupService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class GroupController {
@@ -23,7 +21,7 @@ public class GroupController {
   @Autowired
   private IGroupService iGroupService;
 
-  @PostMapping(Endpoints.groupsV1)
+  @PostMapping(Endpoints.v1groups)
   public ResponseEntity<@NonNull ResponseDto<CreateGroupResponseDto>> createGroup(@RequestBody CreateGroupRequestDto requestDto) {
     ResponseDto<CreateGroupResponseDto> responseDto = new ResponseDto<>();
 
@@ -73,13 +71,13 @@ public class GroupController {
     }
   }
 
-  @DeleteMapping(Endpoints.groupsV1)
-  public ResponseEntity<@NonNull ResponseDto<DeleteGroupResponseDto>> deleteGroup(@RequestBody DeleteGroupRequestDto requestDto) {
+  @DeleteMapping(Endpoints.v1groupsById)
+  public ResponseEntity<@NonNull ResponseDto<DeleteGroupResponseDto>> deleteGroup(@PathVariable Long groupId, @RequestBody DeleteGroupRequestDto requestDto) {
     ResponseDto<DeleteGroupResponseDto> responseDto = new ResponseDto<>();
 
     try {
-      doValidationsForDeleteGroup(requestDto);
-      Group group = iGroupService.deleteGroup(requestDto.getGroupId(), requestDto.getUserId());
+      doValidationsForDeleteGroup(groupId, requestDto);
+      Group group = iGroupService.deleteGroup(groupId, requestDto.getUserId());
 
       responseDto.setData(
           GroupDTOs.getDeleteGroupResponseDto(GroupDTOs.getGroupResponseDto(group))
@@ -107,12 +105,12 @@ public class GroupController {
 
   }
 
-  private void doValidationsForDeleteGroup(DeleteGroupRequestDto requestDto) throws InvalidDeleteGroupRequestDtoException {
+  private void doValidationsForDeleteGroup(Long groupId, DeleteGroupRequestDto requestDto) throws InvalidGroupIdException, InvalidDeleteGroupRequestDtoException {
+    if(groupId == null || groupId == 0L) {
+      throw new InvalidGroupIdException(ResponseCode.SW_ERR_400, "Group id can't be null or 0", "Please share the correct delete group request payload");
+    }
     if(requestDto == null) {
       throw new InvalidDeleteGroupRequestDtoException(ResponseCode.SW_ERR_400, "Delete Group Request DTO can't be null", "Please share the correct delete group request payload");
-    }
-    if(requestDto.getGroupId() == null || requestDto.getGroupId() == 0L) {
-      throw new InvalidDeleteGroupRequestDtoException(ResponseCode.SW_ERR_400, "Group id can't be null or 0", "Please share the correct delete group request payload");
     }
     if(requestDto.getUserId() == null || requestDto.getUserId() == 0L) {
       throw new InvalidDeleteGroupRequestDtoException(ResponseCode.SW_ERR_400, "User id can't be null or 0", "Please share the correct delete group request payload");

@@ -8,5 +8,6 @@ import java.util.Optional;
 
 public interface IUserService {
   User createUser(User user);
+  void deleteUser(Long userId) throws InvalidUserIdException;
   User findById(long userId) throws InvalidUserIdException;
 }

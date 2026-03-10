@@ -3,6 +3,5 @@ package dev.arpit.splitwise.dtos;
 import lombok.Data;
 
 @Data
-public class DeleteGroupRequestDto {
-    private Long userId;
+public class DeleteUserRequestDto {
 }

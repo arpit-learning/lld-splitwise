@@ -18,6 +18,12 @@ public class UserService implements IUserService {
   }
 
   @Override
+  public void deleteUser(Long userId) throws InvalidUserIdException {
+    User user = userRepository.findById(userId).orElseThrow(() -> new InvalidUserIdException(ResponseCode.SW_ERR_400,"user with userId: " + userId + " not found", "User not found. Please pass correct userId in the payload."));
+    userRepository.delete(user);
+  }
+
+  @Override
   public User findById(long userId) throws InvalidUserIdException {
     return userRepository.findById(userId).orElseThrow(() -> new InvalidUserIdException(ResponseCode.SW_ERR_400,"user with userId: " + userId + " not found", "User not found. Please pass correct userId in the payload."));
   }
