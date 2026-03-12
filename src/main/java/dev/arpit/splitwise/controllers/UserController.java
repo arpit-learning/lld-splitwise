@@ -15,6 +15,7 @@ public class UserController implements IUserController {
   @Autowired
   private IUserService iUserService;
 
+  @Override
   @PostMapping(Endpoints.v1Signup)
   public ResponseEntity<@NonNull ResponseDto<SignupUserResponseDto>> signupUser (@RequestBody SignupUserRequestDto requestDto) {
     ResponseDto<SignupUserResponseDto> responseDto = new ResponseDto<>();
@@ -47,18 +48,38 @@ public class UserController implements IUserController {
     }
   }
 
-  private void doValidationsForSignupUser(SignupUserRequestDto requestDto) throws InvalidSignupUserRequestDtoException {
-    if(requestDto == null) {
-      throw new InvalidSignupUserRequestDtoException(ResponseCode.SW_ERR_400, "Create User Request DTO can't be null", "Please share the correct create user request payload");
-    }
-    if(requestDto.getEmail() == null || requestDto.getEmail().isEmpty()) {
-      throw new InvalidSignupUserRequestDtoException(ResponseCode.SW_ERR_400, "User email can't be null or empty", "Please share the correct create user request payload");
-    }
-    if(requestDto.getPassword() == null || requestDto.getPassword().isEmpty()) {
-      throw new InvalidSignupUserRequestDtoException(ResponseCode.SW_ERR_400, "User password can't be null or empty", "Please share the correct create user request payload");
+  @Override
+  @PostMapping(Endpoints.v1Login)
+  public ResponseEntity<@NonNull ResponseDto<LoginUserResponseDto>> loginUser (LoginUserRequestDto requestDto) {
+    ResponseDto<LoginUserResponseDto> responseDto = new ResponseDto<>();
+
+    try {
+      doValidationsForLoginUser(requestDto);
+      User user = UserDTOs.getUser(requestDto);
+      User loggedinUser = iUserService.loginUser(user);
+      responseDto.setData(UserDTOs.getLoginUserResponseDto(loggedinUser));
+      responseDto.setMeta(new MetaDataDto(
+          ResponseCode.SW_SEC_200,
+          "User with id " + loggedinUser.getId() + " logged in successfully.",
+          "User logged in successfully.",
+          null,
+          null
+      ));
+      return ResponseEntity.ok(responseDto);
+    } catch (BaseException e) {
+      responseDto.setMeta(new MetaDataDto(
+          e.getCode(),
+          e.getMessage(),
+          e.getDisplayMessage(),
+          null,
+          null
+      ));
+      ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.badRequest();
+      return bodyBuilder.body(responseDto);
     }
   }
 
+  @Override
   @PutMapping(Endpoints.v1usersById)
   public ResponseEntity<@NonNull ResponseDto<UpdateUserResponseDto>> updateUser (@PathVariable Long userId, @RequestBody UpdateUserRequestDto requestDto) {
     ResponseDto<UpdateUserResponseDto> responseDto = new ResponseDto<>();
@@ -91,12 +112,7 @@ public class UserController implements IUserController {
     }
   }
 
-  private void doValidationsForUpdateUser(UpdateUserRequestDto requestDto) throws InvalidUpdateUserRequestDtoException {
-    if(requestDto == null) {
-      throw new InvalidUpdateUserRequestDtoException(ResponseCode.SW_ERR_400, "Create User Request DTO can't be null", "Please share the correct create user request payload");
-    }
-  }
-
+  @Override
   @DeleteMapping(Endpoints.v1usersById)
   public ResponseEntity<@NonNull ResponseDto<DeleteUserResponseDto>> deleteUser (@PathVariable Long userId, @RequestBody DeleteUserRequestDto requestDto) {
     ResponseDto<DeleteUserResponseDto> responseDto = new ResponseDto<>();
@@ -123,6 +139,36 @@ public class UserController implements IUserController {
       ));
       ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.badRequest();
       return bodyBuilder.body(responseDto);
+    }
+  }
+
+  private void doValidationsForSignupUser(SignupUserRequestDto requestDto) throws InvalidSignupUserRequestDtoException {
+    if(requestDto == null) {
+      throw new InvalidSignupUserRequestDtoException(ResponseCode.SW_ERR_400, "Create User Request DTO can't be null", "Please share the correct create user request payload");
+    }
+    if(requestDto.getEmail() == null || requestDto.getEmail().isEmpty()) {
+      throw new InvalidSignupUserRequestDtoException(ResponseCode.SW_ERR_400, "User email can't be null or empty", "Please share the correct create user request payload");
+    }
+    if(requestDto.getPassword() == null || requestDto.getPassword().isEmpty()) {
+      throw new InvalidSignupUserRequestDtoException(ResponseCode.SW_ERR_400, "User password can't be null or empty", "Please share the correct create user request payload");
+    }
+  }
+
+  private void doValidationsForLoginUser(LoginUserRequestDto requestDto) throws InvalidLoginUserRequestDtoException {
+    if(requestDto == null) {
+      throw new InvalidLoginUserRequestDtoException(ResponseCode.SW_ERR_400, "Create User Request DTO can't be null", "Please share the correct create user request payload");
+    }
+    if(requestDto.getEmail() == null || requestDto.getEmail().isEmpty()) {
+      throw new InvalidLoginUserRequestDtoException(ResponseCode.SW_ERR_400, "User email can't be null or empty", "Please share the correct create user request payload");
+    }
+    if(requestDto.getPassword() == null || requestDto.getPassword().isEmpty()) {
+      throw new InvalidLoginUserRequestDtoException(ResponseCode.SW_ERR_400, "User password can't be null or empty", "Please share the correct create user request payload");
+    }
+  }
+
+  private void doValidationsForUpdateUser(UpdateUserRequestDto requestDto) throws InvalidUpdateUserRequestDtoException {
+    if(requestDto == null) {
+      throw new InvalidUpdateUserRequestDtoException(ResponseCode.SW_ERR_400, "Create User Request DTO can't be null", "Please share the correct create user request payload");
     }
   }
 

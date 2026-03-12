@@ -2,6 +2,8 @@ package dev.arpit.splitwise.services;
 
 import dev.arpit.splitwise.configs.BCryptEncoder;
 import dev.arpit.splitwise.dtos.ResponseCode;
+import dev.arpit.splitwise.exceptions.InvalidLoginUserException;
+import dev.arpit.splitwise.exceptions.NoGroupMemberException;
 import dev.arpit.splitwise.exceptions.InvalidUserIdException;
 import dev.arpit.splitwise.models.User;
 import dev.arpit.splitwise.repositories.UserRepository;
@@ -16,10 +18,25 @@ public class UserService implements IUserService {
   private BCryptEncoder bCryptEncoder;
 
   @Override
-  public User signupUser(User user) {
+  public User signupUser(User user) throws NoGroupMemberException {
+    String email = user.getEmail();
+    if(userRepository.findByEmail(email).isPresent()) {
+      throw new NoGroupMemberException(ResponseCode.SW_ERR_400,"user with email: " + email + " already exists", "User with email already exists. Please pass a new email in the payload.");
+    }
     String newPass = bCryptEncoder.encode(user.getPassword());
     user.setPassword(newPass);
     return userRepository.save(user);
+  }
+
+  @Override
+  public User loginUser (User user) throws InvalidLoginUserException {
+    String email = user.getEmail();
+    String password = user.getPassword();
+    User existingUser = userRepository.findByEmail(email).orElseThrow(() -> new InvalidLoginUserException(ResponseCode.SW_ERR_400,"user with email: " + email + " not found", "User not found. Please pass correct email in the payload."));
+    if(!bCryptEncoder.matches(password, existingUser.getPassword())) {
+      throw new InvalidLoginUserException(ResponseCode.SW_ERR_400,"Invalid password for user with email: " + email, "Invalid password. Please pass correct password in the payload.");
+    }
+    return existingUser;
   }
 
   @Override
@@ -32,7 +49,7 @@ public class UserService implements IUserService {
   }
 
   @Override
-  public void deleteUser(Long userId) throws InvalidUserIdException {
+  public void deleteUser(long userId) throws InvalidUserIdException {
     User user = userRepository.findById(userId).orElseThrow(() -> new InvalidUserIdException(ResponseCode.SW_ERR_400,"user with userId: " + userId + " not found", "User not found. Please pass correct userId in the payload."));
     userRepository.delete(user);
   }

@@ -23,4 +23,12 @@ public class UserDTOs {
   public static SignupUserResponseDto getSignupUserResponseDto(User user) {
     return new SignupUserResponseDto(user.getId(), user.getEmail());
   }
+
+  public static LoginUserResponseDto getLoginUserResponseDto(User user) {
+    return new LoginUserResponseDto(user.getId(), user.getEmail());
+  }
+
+  public static User getUser(LoginUserRequestDto requestDto) {
+    return new User(null, requestDto.getEmail(), null, requestDto.getPassword());
+  }
 }

@@ -17,7 +17,7 @@ public class GroupMember extends BaseModel {
   private Group group;
   @ManyToOne
   @JoinColumn(name = "user_id")
-  private User user;
+  private User member;
   @ManyToOne
   @JoinColumn(name = "added_by_id")
   private User addedBy;

@@ -21,8 +21,6 @@ public class GroupService implements IGroupService {
   @Autowired
   private GroupRepository groupRepository;
   @Autowired
-  private IUserService iUserService;
-  @Autowired
   private IGroupAdminService iGroupAdminService;
   @Autowired
   private IGroupMemberService iGroupMemberService;
@@ -44,9 +42,7 @@ public class GroupService implements IGroupService {
 
   @Override
   @Transactional
-  public Group createGroup(String groupName, String description, long userId) throws InvalidUserIdException, InvalidGroupAdminException {
-    User admin = iUserService.findById(userId);
-
+  public Group createGroup(String groupName, String description, User admin) throws InvalidGroupAdminException {
     Group group = new Group(groupName, description, admin);
     group = this.save(group);
 
@@ -58,9 +54,8 @@ public class GroupService implements IGroupService {
 
   @Override
   @Transactional
-  public Group deleteGroup(long groupId, long userId) throws InvalidGroupIdException, InvalidUserIdException, UnAuthorizedAccessException {
+  public Group deleteGroup(long groupId, User admin) throws InvalidGroupIdException, UnAuthorizedAccessException {
     Group group = this.findById(groupId);
-    User admin = iUserService.findById(userId);
     iGroupAdminService.findByGroupAndUser(group, admin);
     List<GroupMember> groupMembers = iGroupMemberService.findAllByGroup(group);
     List<GroupAdmin> groupAdmins = iGroupAdminService.findAllByGroup(group);
