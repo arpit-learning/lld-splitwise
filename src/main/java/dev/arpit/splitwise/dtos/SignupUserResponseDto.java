@@ -5,9 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class CreateUserResponseDto {
+public class SignupUserResponseDto {
   private long id;
-  private String name;
   private String email;
-  private String mobile;
 }

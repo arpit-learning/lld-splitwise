@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class GroupController {
+public class GroupController implements IGroupController {
 
   @Autowired
   private IGroupService iGroupService;

@@ -1,5 +1,6 @@
 package dev.arpit.splitwise.services;
 
+import dev.arpit.splitwise.configs.BCryptEncoder;
 import dev.arpit.splitwise.dtos.ResponseCode;
 import dev.arpit.splitwise.exceptions.InvalidUserIdException;
 import dev.arpit.splitwise.models.User;
@@ -11,10 +12,23 @@ import org.springframework.stereotype.Service;
 public class UserService implements IUserService {
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private BCryptEncoder bCryptEncoder;
 
   @Override
-  public User createUser(User user) {
+  public User signupUser(User user) {
+    String newPass = bCryptEncoder.encode(user.getPassword());
+    user.setPassword(newPass);
     return userRepository.save(user);
+  }
+
+  @Override
+  public User updateUser (long userId, User user) throws InvalidUserIdException {
+    User existingUser = userRepository.findById(userId).orElseThrow(() -> new InvalidUserIdException(ResponseCode.SW_ERR_400,"user with userId: " + userId + " not found", "User not found. Please pass correct userId in the payload."));
+    if(user.getName() != null) existingUser.setName(user.getName());
+    if(user.getEmail() != null) existingUser.setEmail(user.getEmail());
+    if(user.getMobile() != null) existingUser.setMobile(user.getMobile());
+    return userRepository.save(existingUser);
   }
 
   @Override

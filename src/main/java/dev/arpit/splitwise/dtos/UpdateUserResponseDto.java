@@ -1,11 +1,13 @@
 package dev.arpit.splitwise.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-public class CreateUserRequestDto {
+@AllArgsConstructor
+public class UpdateUserResponseDto {
+  private long id;
   private String name;
   private String email;
   private String mobile;
-  private String password;
 }

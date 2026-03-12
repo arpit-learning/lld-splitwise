@@ -1,8 +1,6 @@
 package dev.arpit.splitwise.mappers;
 
-import dev.arpit.splitwise.dtos.CreateUserRequestDto;
-import dev.arpit.splitwise.dtos.CreateUserResponseDto;
-import dev.arpit.splitwise.dtos.UserResponseDto;
+import dev.arpit.splitwise.dtos.*;
 import dev.arpit.splitwise.models.User;
 
 public class UserDTOs {
@@ -10,11 +8,19 @@ public class UserDTOs {
     return new UserResponseDto(user.getId(), user.getName(), user.getEmail(), user.getMobile());
   }
 
-  public static CreateUserResponseDto getCreateUserResponseDto(User user) {
-    return new CreateUserResponseDto(user.getId(), user.getName(), user.getEmail(), user.getMobile());
+  public static UpdateUserResponseDto getUpdateUserResponseDto(User user) {
+    return new UpdateUserResponseDto(user.getId(), user.getName(), user.getEmail(), user.getMobile());
   }
 
-  public static User getUser(CreateUserRequestDto requestDto) {
-    return new User(requestDto.getName(), requestDto.getEmail(), requestDto.getMobile(), requestDto.getPassword());
+  public static User getUser(UpdateUserRequestDto requestDto) {
+    return new User(requestDto.getName(), requestDto.getEmail(), requestDto.getMobile(), null);
+  }
+
+  public static User getUser(SignupUserRequestDto requestDto) {
+    return new User(null, requestDto.getEmail(), null, requestDto.getPassword());
+  }
+
+  public static SignupUserResponseDto getSignupUserResponseDto(User user) {
+    return new SignupUserResponseDto(user.getId(), user.getEmail());
   }
 }
