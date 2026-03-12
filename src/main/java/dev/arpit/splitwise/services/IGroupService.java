@@ -2,7 +2,6 @@ package dev.arpit.splitwise.services;
 
 import dev.arpit.splitwise.exceptions.InvalidGroupAdminException;
 import dev.arpit.splitwise.exceptions.InvalidGroupIdException;
-import dev.arpit.splitwise.exceptions.InvalidUserIdException;
 import dev.arpit.splitwise.exceptions.UnAuthorizedAccessException;
 import dev.arpit.splitwise.models.Group;
 import dev.arpit.splitwise.models.User;

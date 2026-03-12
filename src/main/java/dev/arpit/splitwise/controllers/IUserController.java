@@ -3,7 +3,6 @@ package dev.arpit.splitwise.controllers;
 import dev.arpit.splitwise.dtos.*;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 public interface IUserController {
   ResponseEntity<@NonNull ResponseDto<SignupUserResponseDto>> signupUser (SignupUserRequestDto requestDto);

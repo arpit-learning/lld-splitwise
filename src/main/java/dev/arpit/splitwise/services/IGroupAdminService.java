@@ -14,4 +14,5 @@ public interface IGroupAdminService {
   GroupAdmin findByGroupAndUser(Group group, User user) throws UnAuthorizedAccessException;
   List<GroupAdmin> findAllByGroup(Group group);
   void deleteAll(List<GroupAdmin> groupAdmins);
+  boolean doesExists(Group group, User admin);
 }

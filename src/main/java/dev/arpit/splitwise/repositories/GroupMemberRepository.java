@@ -1,7 +1,6 @@
 package dev.arpit.splitwise.repositories;
 
 import dev.arpit.splitwise.models.Group;
-import dev.arpit.splitwise.models.GroupAdmin;
 import dev.arpit.splitwise.models.GroupMember;
 import dev.arpit.splitwise.models.User;
 import lombok.NonNull;

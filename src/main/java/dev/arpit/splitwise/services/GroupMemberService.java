@@ -1,8 +1,7 @@
 package dev.arpit.splitwise.services;
 
 import dev.arpit.splitwise.dtos.ResponseCode;
-import dev.arpit.splitwise.exceptions.InvalidGroupIdException;
-import dev.arpit.splitwise.exceptions.InvalidUserIdException;
+import dev.arpit.splitwise.exceptions.InvalidAddGroupMemberException;
 import dev.arpit.splitwise.exceptions.NoGroupMemberException;
 import dev.arpit.splitwise.exceptions.UnAuthorizedAccessException;
 import dev.arpit.splitwise.models.Group;
@@ -33,8 +32,14 @@ public class GroupMemberService implements IGroupMemberService {
   }
 
   @Override
-  public GroupMember addGroupMember (Group group, User member, User admin) throws UnAuthorizedAccessException {
+  public GroupMember addGroupMember (Group group, User member, User admin) throws UnAuthorizedAccessException, InvalidAddGroupMemberException {
     iGroupAdminService.findByGroupAndUser(group, admin);
+    if(iGroupAdminService.doesExists(group, member)) {
+      throw new InvalidAddGroupMemberException(ResponseCode.SW_ERR_400, "member with id " + member.getId() + " is already a admin of the group", "Please pass correct member id.");
+    }
+    if(groupMemberRepository.findByGroupAndMember(group, member).isPresent()) {
+      throw new InvalidAddGroupMemberException(ResponseCode.SW_ERR_400, "member with id " + member.getId() + " is already a member of the group", "Please pass correct member id.");
+    }
     return groupMemberRepository.save(new GroupMember(group, member, admin));
   }
 

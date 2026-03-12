@@ -48,4 +48,9 @@ public class GroupAdminService implements IGroupAdminService {
   public void deleteAll(List<GroupAdmin> groupAdmins) {
     groupAdminRepository.deleteAll(groupAdmins);
   }
+
+  @Override
+  public boolean doesExists (Group group, User admin) {
+    return groupAdminRepository.findByGroupAndAdmin(group, admin).isPresent();
+  }
 }

@@ -3,7 +3,7 @@ package dev.arpit.splitwise.services;
 import dev.arpit.splitwise.configs.BCryptEncoder;
 import dev.arpit.splitwise.dtos.ResponseCode;
 import dev.arpit.splitwise.exceptions.InvalidLoginUserException;
-import dev.arpit.splitwise.exceptions.NoGroupMemberException;
+import dev.arpit.splitwise.exceptions.InvalidSignupUserException;
 import dev.arpit.splitwise.exceptions.InvalidUserIdException;
 import dev.arpit.splitwise.models.User;
 import dev.arpit.splitwise.repositories.UserRepository;
@@ -18,10 +18,10 @@ public class UserService implements IUserService {
   private BCryptEncoder bCryptEncoder;
 
   @Override
-  public User signupUser(User user) throws NoGroupMemberException {
+  public User signupUser(User user) throws InvalidSignupUserException {
     String email = user.getEmail();
     if(userRepository.findByEmail(email).isPresent()) {
-      throw new NoGroupMemberException(ResponseCode.SW_ERR_400,"user with email: " + email + " already exists", "User with email already exists. Please pass a new email in the payload.");
+      throw new InvalidSignupUserException(ResponseCode.SW_ERR_400,"user with email: " + email + " already exists", "User with email already exists. Please pass a new email in the payload.");
     }
     String newPass = bCryptEncoder.encode(user.getPassword());
     user.setPassword(newPass);
