@@ -58,7 +58,6 @@ public class GroupMemberController implements IGroupMemberController {
       ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.badRequest();
       return bodyBuilder.body(responseDto);
     }
-
   }
 
   @Override
@@ -103,11 +102,82 @@ public class GroupMemberController implements IGroupMemberController {
       doValidationsForFetchGroupMembers(groupId);
       Group group = iGroupService.findById(groupId);
       List<GroupMember> groupMembers = iGroupMemberService.findAllByGroup(group);
-      responseDto.setData(GroupMemberDTOs.getFetchGroupMembersResponseDto(groupMembers));
+      responseDto.setData(GroupMemberDTOs.getFetchGroupMembersResponseDto(group, groupMembers));
       responseDto.setMeta(new MetaDataDto(
           ResponseCode.SW_SEC_200,
           "Fetched members of group with id " + groupId,
           "Members fetched successfully",
+          null,
+          null
+      ));
+
+      return ResponseEntity.ok(responseDto);
+    } catch (BaseException e) {
+      responseDto.setMeta(new MetaDataDto(
+          e.getCode(),
+          e.getMessage(),
+          e.getDisplayMessage(),
+          null,
+          null
+      ));
+
+      ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.badRequest();
+      return bodyBuilder.body(responseDto);
+    }
+  }
+
+  @Override
+  @PostMapping(Endpoints.v1groupsByIdMembers)
+  public ResponseEntity<@NonNull ResponseDto<AddGroupMembersResponseDto>> addGroupMembers (@PathVariable Long groupId, @RequestBody AddGroupMembersRequestDto requestDto) {
+    ResponseDto<AddGroupMembersResponseDto> responseDto = new ResponseDto<>();
+
+    try {
+      doValidationsForAddGroupMembers(groupId, requestDto);
+      long adminId = requestDto.getAdminId();
+      Group group = iGroupService.findById(groupId);
+      User admin = iUserService.findById(adminId);
+      List<User> members = iUserService.findAllById(requestDto.getMemberIds());
+      List<GroupMember> groupMembers = iGroupMemberService.addGroupMembers(group, members, admin);
+      responseDto.setData(GroupMemberDTOs.getAddGroupMembersResponseDto(groupMembers));
+      responseDto.setMeta(new MetaDataDto(
+          ResponseCode.SW_SEC_200,
+          "Added members to the group with id " + groupId,
+          "Members added successfully",
+          null,
+          null
+      ));
+
+      return ResponseEntity.ok(responseDto);
+    } catch (BaseException e) {
+      responseDto.setMeta(new MetaDataDto(
+          e.getCode(),
+          e.getMessage(),
+          e.getDisplayMessage(),
+          null,
+          null
+      ));
+
+      ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.badRequest();
+      return bodyBuilder.body(responseDto);
+    }
+  }
+
+  @Override
+  @DeleteMapping(Endpoints.v1groupsByIdMembers)
+  public ResponseEntity<@NonNull ResponseDto<RemoveGroupMembersResponseDto>> removeGroupMembers (Long groupId, RemoveGroupMembersRequestDto requestDto) {
+    ResponseDto<RemoveGroupMembersResponseDto> responseDto = new ResponseDto<>();
+
+    try {
+      doValidationsForRemoveGroupMembers(groupId, requestDto);
+      long adminId = requestDto.getAdminId();
+      Group group = iGroupService.findById(groupId);
+      User admin = iUserService.findById(adminId);
+      List<User> members = iUserService.findAllById(requestDto.getMemberIds());
+      iGroupMemberService.removeGroupMembers(group, members, admin);
+      responseDto.setMeta(new MetaDataDto(
+          ResponseCode.SW_SEC_200,
+          "Removed members from the group with id " + groupId,
+          "Members removed successfully",
           null,
           null
       ));
@@ -160,6 +230,36 @@ public class GroupMemberController implements IGroupMemberController {
   private void doValidationsForFetchGroupMembers (Long groupId) throws InvalidGroupIdException {
     if(groupId == null || groupId == 0L) {
       throw new InvalidGroupIdException(ResponseCode.SW_ERR_400, "Group id can't be null or 0", "Please share the correct group id in the path");
+    }
+  }
+
+  private void doValidationsForAddGroupMembers (Long groupId, AddGroupMembersRequestDto requestDto) throws InvalidGroupIdException, InvalidAddGroupMembersRequestDtoException {
+    if(groupId == null || groupId == 0L) {
+      throw new InvalidGroupIdException(ResponseCode.SW_ERR_400, "Group id can't be null or 0", "Please share the correct group id in the path");
+    }
+    if(requestDto == null) {
+      throw new InvalidAddGroupMembersRequestDtoException(ResponseCode.SW_ERR_400, "Add Members Request DTO can't be null", "Please share the correct add members request payload");
+    }
+    if(requestDto.getAdminId() == null || requestDto.getAdminId() == 0L) {
+      throw new InvalidAddGroupMembersRequestDtoException(ResponseCode.SW_ERR_400, "Admin id can't be null or 0", "Please share the correct admin id in the request payload");
+    }
+    if(requestDto.getMemberIds() == null || requestDto.getMemberIds().isEmpty()) {
+      throw new InvalidAddGroupMembersRequestDtoException(ResponseCode.SW_ERR_400, "Member ids can't be null or empty", "Please share the correct member ids in the request payload");
+    }
+  }
+
+  private void doValidationsForRemoveGroupMembers (Long groupId, RemoveGroupMembersRequestDto requestDto) throws InvalidGroupIdException, InvalidRemoveGroupMembersRequestDtoException {
+    if(groupId == null || groupId == 0L) {
+      throw new InvalidGroupIdException(ResponseCode.SW_ERR_400, "Group id can't be null or 0", "Please share the correct group id in the path");
+    }
+    if(requestDto == null) {
+      throw new InvalidRemoveGroupMembersRequestDtoException(ResponseCode.SW_ERR_400, "Remove Members Request DTO can't be null", "Please share the correct remove members request payload");
+    }
+    if(requestDto.getAdminId() == null || requestDto.getAdminId() == 0L) {
+      throw new InvalidRemoveGroupMembersRequestDtoException(ResponseCode.SW_ERR_400, "Admin id can't be null or 0", "Please share the correct admin id in the request payload");
+    }
+    if(requestDto.getMemberIds() == null || requestDto.getMemberIds().isEmpty()) {
+      throw new InvalidRemoveGroupMembersRequestDtoException(ResponseCode.SW_ERR_400, "Member ids can't be null or empty", "Please share the correct member ids in the request payload");
     }
   }
 }

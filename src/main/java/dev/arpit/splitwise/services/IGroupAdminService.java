@@ -5,7 +5,6 @@ import dev.arpit.splitwise.exceptions.UnAuthorizedAccessException;
 import dev.arpit.splitwise.models.Group;
 import dev.arpit.splitwise.models.GroupAdmin;
 import dev.arpit.splitwise.models.User;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

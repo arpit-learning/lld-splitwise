@@ -1,9 +1,7 @@
 package dev.arpit.splitwise.services;
 
 import dev.arpit.splitwise.dtos.ResponseCode;
-import dev.arpit.splitwise.exceptions.InvalidAddGroupMemberException;
-import dev.arpit.splitwise.exceptions.NoGroupMemberException;
-import dev.arpit.splitwise.exceptions.UnAuthorizedAccessException;
+import dev.arpit.splitwise.exceptions.*;
 import dev.arpit.splitwise.models.Group;
 import dev.arpit.splitwise.models.GroupMember;
 import dev.arpit.splitwise.models.User;
@@ -11,6 +9,7 @@ import dev.arpit.splitwise.repositories.GroupMemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -49,6 +48,45 @@ public class GroupMemberService implements IGroupMemberService {
     GroupMember groupMember = this.findByGroupAndUser(group, member);
     groupMemberRepository.delete(groupMember);
     return groupMember;
+  }
+
+  @Override
+  public List<GroupMember> addGroupMembers (Group group, List<User> members, User admin) throws UnAuthorizedAccessException, InvalidAddGroupMembersException {
+    iGroupAdminService.findByGroupAndUser(group, admin);
+
+    if(members.isEmpty()) {
+      throw new InvalidAddGroupMembersException(ResponseCode.SW_ERR_400, "member ids can't be null or empty", "Please pass correct member ids.");
+    }
+    for(User member: members) {
+      if(iGroupAdminService.doesExists(group, member)) {
+        throw new InvalidAddGroupMembersException(ResponseCode.SW_ERR_400, "member with id " + member.getId() + " is already a admin of the group", "Please pass correct member ids.");
+      }
+    }
+    for(User member: members) {
+      if (groupMemberRepository.findByGroupAndMember(group, member).isPresent()) {
+        throw new InvalidAddGroupMembersException(ResponseCode.SW_ERR_400, "member with id " + member.getId() + " is already a member of the group", "Please pass correct member ids.");
+      }
+    }
+
+    List<GroupMember> groupMembers = members.stream().map(member -> new GroupMember(group, member, admin)).toList();
+    return groupMemberRepository.saveAll(groupMembers);
+  }
+
+  @Override
+  public List<GroupMember> removeGroupMembers (Group group, List<User> members, User admin) throws UnAuthorizedAccessException, NoGroupMemberException, InvalidRemoveGroupMembersException {
+    iGroupAdminService.findByGroupAndUser(group, admin);
+
+    if(members.isEmpty()) {
+      throw new InvalidRemoveGroupMembersException(ResponseCode.SW_ERR_400, "member ids can't be null or empty", "Please pass correct member ids.");
+    }
+
+    List<GroupMember> groupMembers = new ArrayList<>();
+    for(User member: members) {
+      groupMembers.add(this.findByGroupAndUser(group, member));
+    }
+
+    groupMemberRepository.deleteAll(groupMembers);
+    return groupMembers;
   }
 
   @Override

@@ -10,6 +10,8 @@ import dev.arpit.splitwise.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService implements IUserService {
   @Autowired
@@ -57,5 +59,10 @@ public class UserService implements IUserService {
   @Override
   public User findById(long userId) throws InvalidUserIdException {
     return userRepository.findById(userId).orElseThrow(() -> new InvalidUserIdException(ResponseCode.SW_ERR_400,"user with userId: " + userId + " not found", "User not found. Please pass correct userId in the payload."));
+  }
+
+  @Override
+  public List<User> findAllById (List<Long> userIds) {
+    return userRepository.findAllById(userIds);
   }
 }
