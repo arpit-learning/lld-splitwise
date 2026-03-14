@@ -37,6 +37,7 @@ public class GroupUserDTOs {
 
   public static GroupUserResponseDto getGroupUserResponseDto(GroupUser groupUser) {
     return new GroupUserResponseDto(
+        groupUser.getUser().getId(),
         groupUser.getUser().getName(),
         groupUser.getUser().getEmail(),
         groupUser.getUser().getMobile(),

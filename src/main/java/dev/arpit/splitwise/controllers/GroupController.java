@@ -96,6 +96,40 @@ public class GroupController implements IGroupController {
 
   }
 
+  @Override
+  @PostMapping(Endpoints.v1groupsByIdSettleUp)
+  public ResponseEntity<@NonNull ResponseDto<SettleUpGroupResponseDto>> settleUp (@PathVariable Long groupId, @RequestBody SettleUpGroupRequestDto requestDto) {
+    ResponseDto<SettleUpGroupResponseDto> responseDto = new ResponseDto<>();
+
+    try {
+      doValidationsForSettleUpGroup(groupId, requestDto);
+      long adminId = requestDto.getAdminId();
+      User admin = iUserService.findById(adminId);
+      iGroupService.settleUp(groupId, admin);
+      responseDto.setMeta(
+          new MetaDataDto(
+              ResponseCode.SW_SEC_200,
+              "Group with id " + groupId + " settled sucessfully. You can now carry out the minimal transactions.",
+              "Group settled successfully, you can tell the members to carry out the minimal no of transactions.",
+              null,
+              null
+          )
+      );
+      return ResponseEntity.ok(responseDto);
+    } catch (BaseException e) {
+      responseDto.setMeta(new MetaDataDto(
+          e.getCode(),
+          e.getMessage(),
+          e.getDisplayMessage(),
+          null,
+          null
+      ));
+
+      ResponseEntity.BodyBuilder bodyBuilder = ResponseEntity.badRequest();
+      return bodyBuilder.body(responseDto);
+    }
+  }
+
   private void doValidationsForCreateGroup(CreateGroupRequestDto requestDto) throws InvalidCreateGroupRequestDtoException {
     if(requestDto == null) {
       throw new InvalidCreateGroupRequestDtoException(ResponseCode.SW_ERR_400, "Create Group Request DTO can't be null", "Please share the correct create group request payload");
@@ -120,6 +154,23 @@ public class GroupController implements IGroupController {
     }
     if(requestDto.getUserId() == null || requestDto.getUserId() == 0L) {
       throw new InvalidDeleteGroupRequestDtoException(ResponseCode.SW_ERR_400, "User id can't be null or 0", "Please share the correct delete group request payload");
+    }
+  }
+
+  private void doValidationsForSettleUpGroup(Long groupId, SettleUpGroupRequestDto requestDto) throws InvalidSettleUpGroupRequestDtoException {
+    if(groupId == null || groupId == 0L) {
+      throw new InvalidSettleUpGroupRequestDtoException(
+          ResponseCode.SW_ERR_400,
+          "Invalid group id " + groupId,
+          "You have passed invalid groupId. Please pass a correct one."
+      );
+    }
+    if(requestDto.getAdminId() == null || requestDto.getAdminId() == 0L) {
+      throw new InvalidSettleUpGroupRequestDtoException(
+          ResponseCode.SW_ERR_400,
+          "Invalid admin id " + requestDto.getAdminId(),
+          "YOu have passed invalid adminId. Please pass a correct one."
+      );
     }
   }
 }
