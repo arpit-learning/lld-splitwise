@@ -105,7 +105,7 @@ public class GroupController implements IGroupController {
       doValidationsForSettleUpGroup(groupId, requestDto);
       long adminId = requestDto.getAdminId();
       User admin = iUserService.findById(adminId);
-      iGroupService.settleUp(groupId, admin);
+      responseDto.setData(GroupDTOs.getSettleUpGroupResponseDto(iGroupService.settleUp(groupId, admin)));
       responseDto.setMeta(
           new MetaDataDto(
               ResponseCode.SW_SEC_200,

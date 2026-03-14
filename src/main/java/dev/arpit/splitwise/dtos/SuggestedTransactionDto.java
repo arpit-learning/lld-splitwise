@@ -3,11 +3,11 @@ package dev.arpit.splitwise.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
-public class SettleUpGroupResponseDto {
+public class SuggestedTransactionDto {
+  private UserResponseDto paidBy;
+  private UserResponseDto paidTo;
   private GroupResponseDto group;
-  private List<SuggestedTransactionDto> suggestedTransactions;
+  private double amount;
 }
