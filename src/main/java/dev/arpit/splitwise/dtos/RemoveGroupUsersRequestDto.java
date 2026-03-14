@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AddGroupMembersRequestDto {
+public class RemoveGroupUsersRequestDto {
   private Long adminId;
-  private List<Long> memberIds;
+  private List<Long> userIds;
 }

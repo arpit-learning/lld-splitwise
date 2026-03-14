@@ -1,13 +1,14 @@
 package dev.arpit.splitwise.services;
 
 import dev.arpit.splitwise.dtos.ResponseCode;
-import dev.arpit.splitwise.exceptions.InvalidGroupAdminException;
+import dev.arpit.splitwise.exceptions.InvalidGroupUserException;
 import dev.arpit.splitwise.exceptions.InvalidGroupIdException;
+import dev.arpit.splitwise.exceptions.NoGroupUserException;
 import dev.arpit.splitwise.exceptions.UnAuthorizedAccessException;
 import dev.arpit.splitwise.models.Group;
-import dev.arpit.splitwise.models.GroupAdmin;
-import dev.arpit.splitwise.models.GroupMember;
+import dev.arpit.splitwise.models.GroupUser;
 import dev.arpit.splitwise.models.User;
+import dev.arpit.splitwise.models.GroupUserType;
 import dev.arpit.splitwise.repositories.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,9 +21,7 @@ public class GroupService implements IGroupService {
   @Autowired
   private GroupRepository groupRepository;
   @Autowired
-  private IGroupAdminService iGroupAdminService;
-  @Autowired
-  private IGroupMemberService iGroupMemberService;
+  private IGroupUserService iGroupUserService;
 
   @Override
   public Group save(Group group) {
@@ -41,26 +40,28 @@ public class GroupService implements IGroupService {
 
   @Override
   @Transactional
-  public Group createGroup(String groupName, String description, User admin) throws InvalidGroupAdminException {
+  public Group createGroup(String groupName, String description, User admin) throws InvalidGroupUserException {
     Group group = new Group(groupName, description, admin);
     group = this.save(group);
 
-    GroupAdmin groupAdmin = new GroupAdmin(group, admin, admin);
-    iGroupAdminService.save(groupAdmin);
+    GroupUser groupUser = new GroupUser(group, admin, admin, GroupUserType.ADMIN);
+    iGroupUserService.save(groupUser);
 
     return group;
   }
 
   @Override
   @Transactional
-  public Group deleteGroup(long groupId, User admin) throws InvalidGroupIdException, UnAuthorizedAccessException {
+  public Group deleteGroup(long groupId, User admin) throws InvalidGroupIdException, UnAuthorizedAccessException, NoGroupUserException {
     Group group = this.findById(groupId);
-    iGroupAdminService.findByGroupAndUser(group, admin);
-    List<GroupMember> groupMembers = iGroupMemberService.findAllByGroup(group);
-    List<GroupAdmin> groupAdmins = iGroupAdminService.findAllByGroup(group);
+    boolean isAdmin = iGroupUserService.isUserAdmin(group, admin);
+    if(!isAdmin) {
+      throw new UnAuthorizedAccessException(ResponseCode.SW_ERR_403, "admin with id " + admin.getId() + " is not an admin of the group", "Please pass correct admin id.");
+    }
 
-    iGroupAdminService.deleteAll(groupAdmins);
-    iGroupMemberService.deleteAll(groupMembers);
+    List<GroupUser> groupUsers = iGroupUserService.findAllByGroup(group);
+
+    iGroupUserService.deleteAll(groupUsers);
     this.delete(group);
     return group;
   }

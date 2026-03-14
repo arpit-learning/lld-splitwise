@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class AddGroupMembersResponseDto {
+public class AddGroupUsersResponseDto {
   private GroupResponseDto group;
   private List<UserResponseDto> users;
   private UserResponseDto addedBy;

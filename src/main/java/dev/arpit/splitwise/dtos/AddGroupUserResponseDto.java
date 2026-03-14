@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AddGroupMemberResponseDto {
+public class AddGroupUserResponseDto {
   private GroupResponseDto group;
   private UserResponseDto user;
   private UserResponseDto addedBy;

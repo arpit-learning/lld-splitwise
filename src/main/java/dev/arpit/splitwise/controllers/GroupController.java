@@ -40,7 +40,7 @@ public class GroupController implements IGroupController {
       responseDto.setMeta(new MetaDataDto(
           ResponseCode.SW_SEC_200,
           "Group with id " + group.getId() + " created successfully.",
-          "Your group created successfully. You can add members to the group now.",
+          "Your group created successfully. You can add users to the group now.",
           null,
           null
       ));
