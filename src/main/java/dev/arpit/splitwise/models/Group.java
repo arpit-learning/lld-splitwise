@@ -19,7 +19,7 @@ public class Group extends BaseModel {
   @ManyToOne(optional = false)
   @JoinColumn(name = "group_created_by", referencedColumnName = "id")
   private User groupCreatedBy;
-  @OneToMany
+  @OneToMany(mappedBy = "group")
   @ToString.Exclude
   private List<Expense> expenses;
 }

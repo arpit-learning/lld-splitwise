@@ -20,7 +20,7 @@ public class Expense extends BaseModel {
   private Group group;
   private String description;
   private double amount;
-  @OneToMany
+  @OneToMany(mappedBy = "expense")
   @ToString.Exclude
   private List<ExpenseLedger> expenseLedgers;
 }
