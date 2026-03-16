@@ -22,10 +22,12 @@ public abstract class BaseModel {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private long id;
   @CreatedDate
+  @Column(nullable = false)
   private LocalDateTime createdAt;
   @CreatedBy
   private String createdBy;
   @LastModifiedDate
+  @Column(nullable = false)
   private LocalDateTime updatedAt;
   @LastModifiedBy
   private String updatedBy;
