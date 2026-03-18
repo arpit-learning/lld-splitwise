@@ -50,7 +50,7 @@ public class UserController implements IUserController {
 
   @Override
   @PostMapping(Endpoints.v1Login)
-  public ResponseEntity<@NonNull ResponseDto<LoginUserResponseDto>> loginUser (LoginUserRequestDto requestDto) {
+  public ResponseEntity<@NonNull ResponseDto<LoginUserResponseDto>> loginUser (@RequestBody LoginUserRequestDto requestDto) {
     ResponseDto<LoginUserResponseDto> responseDto = new ResponseDto<>();
 
     try {
